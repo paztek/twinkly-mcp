@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `twinkly-mcp` is a Model Context Protocol (MCP) server that exposes control of [Twinkly](https://www.twinkly.com/) smart lights to AI agents. It wraps the [`@twinklyjs/twinkly`](https://github.com/twinklyjs/twinklyjs) library and surfaces a curated, agent-friendly set of MCP tools.
 
-> **Current state: skeleton.** Only `package.json` (ESM, `type: module`, `main: index.js`), `README.md`, `.gitignore` exist. No source code or dependencies yet. The plan below tracks the build. Update the checkboxes as phases land.
+> **Current state: Phase 0 complete.** TypeScript toolchain, deps, scripts, and CI are in place; `src/index.ts` is a placeholder bin. The plan below tracks the build — update the checkboxes as phases land.
 
 ## Underlying library: `@twinklyjs/twinkly` (v0.0.8)
 
@@ -63,7 +63,7 @@ src/
 
 ## Implementation plan & progress
 
-- [ ] **Phase 0 — Setup.** Add deps (`typescript`, `tsx`, `@modelcontextprotocol/sdk`, `@twinklyjs/twinkly`, `zod`, `vitest`). Add `tsconfig.json` (NodeNext), `build`/`dev`/`test`/`lint` scripts, `bin: { "twinkly-mcp": "dist/index.js" }`. Ignore `dist/`.
+- [x] **Phase 0 — Setup.** ✅ Deps installed (`@modelcontextprotocol/sdk` ^1, `@twinklyjs/twinkly` ^0.0.8, `zod` ^3; dev: `typescript` ^5.6, `tsx`, `vitest` ^4 + `@vitest/coverage-v8`, `@types/node`). `tsconfig.json` (NodeNext, strict), `vitest.config.ts`, npm scripts (`build`/`dev`/`start`/`typecheck`/`test`/`test:coverage`), `bin: twinkly-mcp → dist/index.js`, `engines.node >=20`. GitHub Actions CI (`.github/workflows/ci.yml`) runs typecheck + build + coverage on Node 20/22/24. `npm audit`: 0 vulnerabilities. Toolchain verified: typecheck, build, and test all green.
 - [ ] **Phase 1 — Config layer.** `config.ts`: zod schema merging defaults ← file ← env ← CLI. Fail fast. Unit tests for precedence. (No device needed.)
 - [ ] **Phase 2 — Device manager.** Wrap `TwinklyClient` per device; lazy auth + token reuse; resolve `device` param → client (fallback to default); optional discovery cache; map `FetchError` → typed errors. Tests with mocked client.
 - [ ] **Phase 3 — MCP bootstrap (stdio).** `server.ts` + `index.ts` wire `StdioServerTransport`. Register `list_devices`, verify with MCP Inspector. **Milestone: connectable server.**
@@ -79,7 +79,15 @@ src/
 
 ## Commands
 
-> To be populated in Phase 0/8. Current placeholder: `npm test` exits 1 ("no test specified").
+- `npm run dev` — run the server in watch mode (`tsx watch src/index.ts`)
+- `npm run build` — compile TypeScript to `dist/`
+- `npm start` — run the built server (`node dist/index.js`)
+- `npm run typecheck` — type-check without emitting
+- `npm test` — run the vitest suite once
+- `npm run test:watch` — vitest in watch mode
+- `npm run test:coverage` — run tests with v8 coverage
+- Single test file: `npx vitest run src/config.test.ts`
+- Single test by name: `npx vitest run -t "merges env over file"`
 
 ## Notes
 
