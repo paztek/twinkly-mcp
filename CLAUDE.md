@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `twinkly-mcp` is a Model Context Protocol (MCP) server that exposes control of [Twinkly](https://www.twinkly.com/) smart lights to AI agents. It wraps the [`@twinklyjs/twinkly`](https://github.com/twinklyjs/twinklyjs) library and surfaces a curated, agent-friendly set of MCP tools.
 
-> **Current state: Phase 0 complete.** TypeScript toolchain, deps, scripts, and CI are in place; `src/index.ts` is a placeholder bin. The plan below tracks the build — update the checkboxes as phases land.
+> **Current state: Phase 1 complete.** TypeScript toolchain + CI (Phase 0) and the config layer (`src/config.ts`, 37 tests, ~98% coverage) are in place; `src/index.ts` is still a placeholder bin. The plan below tracks the build — update the checkboxes as phases land.
 
 ## Underlying library: `@twinklyjs/twinkly` (v0.0.8)
 
@@ -64,7 +64,9 @@ src/
 ## Implementation plan & progress
 
 - [x] **Phase 0 — Setup.** ✅ Deps installed (`@modelcontextprotocol/sdk` ^1, `@twinklyjs/twinkly` ^0.0.8, `zod` ^3; dev: `typescript` ^5.6, `tsx`, `vitest` ^4 + `@vitest/coverage-v8`, `@types/node`). `tsconfig.json` (NodeNext, strict), `vitest.config.ts`, npm scripts (`build`/`dev`/`start`/`typecheck`/`test`/`test:coverage`), `bin: twinkly-mcp → dist/index.js`, `engines.node >=20`. GitHub Actions CI (`.github/workflows/ci.yml`) runs typecheck + build + coverage on Node 20/22/24. `npm audit`: 0 vulnerabilities. Toolchain verified: typecheck, build, and test all green.
-- [ ] **Phase 1 — Config layer.** `config.ts`: zod schema merging defaults ← file ← env ← CLI. Fail fast. Unit tests for precedence. (No device needed.)
+- [x] **Phase 1 — Config layer.** ✅ `src/config.ts`: zod-validated config merging defaults ← file ← env ← CLI (precedence verified). Pure `parseConfig({ file, env, argv })` with all I/O injected; `loadConfig()` is the production wrapper (reads `process.env`/`argv` + optional JSON config file via `--config`/`TWINKLY_CONFIG`). Devices merge by name (last wins) from `TWINKLY_IP`, `TWINKLY_DEVICES` (JSON map), and repeatable `--device name=ip`. Fail-fast `ConfigError` with readable messages. 37 vitest cases, ~98% coverage.
+
+  **Config notes for later phases:** exported `TOOL_GROUPS` (`discovery|status|power|color|effects|movies|admin`), `TRANSPORTS`, `LOG_LEVELS`, `IMPLICIT_DEVICE_NAME` (`"default"`). `TwinklyMcpConfig.tools` is `undefined` ⇒ all groups enabled. Device manager (Phase 2) consumes `config.devices` + `config.defaultDevice`.
 - [ ] **Phase 2 — Device manager.** Wrap `TwinklyClient` per device; lazy auth + token reuse; resolve `device` param → client (fallback to default); optional discovery cache; map `FetchError` → typed errors. Tests with mocked client.
 - [ ] **Phase 3 — MCP bootstrap (stdio).** `server.ts` + `index.ts` wire `StdioServerTransport`. Register `list_devices`, verify with MCP Inspector. **Milestone: connectable server.**
 - [ ] **Phase 4 — Read tools.** `discover_devices`, `get_device_details`, `get_summary`, composite `get_state` (mode + color + brightness). Compact normalized JSON output.
