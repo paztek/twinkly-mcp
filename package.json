@@ -1,0 +1,12 @@
+{
+  "name": "twinkly-mcp",
+  "version": "0.0.1",
+  "description": "A MCP Server to give control of your Twinkly lights to your AI Agents",
+  "license": "ISC",
+  "author": "Matthieu Balmes <matthieu.balmes@gmail.com>",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
