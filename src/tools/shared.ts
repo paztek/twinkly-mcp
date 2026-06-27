@@ -34,6 +34,14 @@ export function textResult(text: string): CallToolResult {
   return { content: [{ type: 'text', text }] };
 }
 
+/**
+ * An error result for invalid tool arguments that zod can't express on a flat
+ * input shape (e.g. "exactly one of rgb / hsv"). Distinct from a device error.
+ */
+export function invalidInput(message: string): CallToolResult {
+  return { isError: true, content: [{ type: 'text', text: `Invalid arguments: ${message}` }] };
+}
+
 /** Turn any thrown value into an MCP error result tagged with its Twinkly code. */
 export function errorResult(err: unknown, logger: Logger): CallToolResult {
   const e: TwinklyError = err instanceof TwinklyError ? err : toTwinklyError(err);
