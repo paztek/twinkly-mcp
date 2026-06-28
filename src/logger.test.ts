@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createLogger } from './logger.js';
 
 function capture() {
@@ -71,5 +71,29 @@ describe('createLogger', () => {
 
     expect(lines[0]).toContain('[twinkly-mcp] error: failed');
     expect(lines[0]).toContain('kaboom');
+  });
+
+  it('falls back to the message when an Error extra has no stack', () => {
+    const { lines, sink } = capture();
+    const log = createLogger('error', sink);
+    const err = new Error('stackless');
+    err.stack = undefined;
+
+    log.error('failed', err);
+
+    expect(lines[0]).toBe('[twinkly-mcp] error: failed stackless');
+  });
+
+  describe('default sink', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('writes a newline-terminated line to process.stderr', () => {
+      const write = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
+      const log = createLogger('info');
+
+      log.info('hello');
+
+      expect(write).toHaveBeenCalledWith('[twinkly-mcp] info: hello\n');
+    });
   });
 });
