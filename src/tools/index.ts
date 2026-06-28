@@ -7,7 +7,7 @@
  * `get_summary`, `get_state`), power (`set_power`, `set_mode`), color
  * (`set_color`, `set_brightness`, `set_saturation`), effects (`list_effects`,
  * `set_effect`), movies (`list_movies`, `set_movie`), and the gated admin group
- * (`set_name`, `set_timer`).
+ * (`set_name`, `set_timer`, realtime `send_frame`).
  *
  * Each registrar is responsible for its own gating: it consults `config.tools`
  * (group allow-list), `config.readonly` (drop device-mutating tools), and
@@ -22,6 +22,7 @@ import { registerColorTools } from './color.js';
 import { registerEffectsTools } from './effects.js';
 import { registerMoviesTools } from './movies.js';
 import { registerDeviceAdminTools } from './device-admin.js';
+import { registerRealtimeTools } from './realtime.js';
 
 /** Register every enabled tool group on the server in `ctx`. */
 export function registerAllTools(ctx: ServerContext): void {
@@ -32,4 +33,5 @@ export function registerAllTools(ctx: ServerContext): void {
   registerEffectsTools(ctx);
   registerMoviesTools(ctx);
   registerDeviceAdminTools(ctx);
+  registerRealtimeTools(ctx);
 }

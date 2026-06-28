@@ -73,20 +73,23 @@ describe('tool gating', () => {
     ]);
   });
 
-  it('hides admin tools unless allowAdmin is set', async () => {
+  it('hides admin tools (set_name, set_timer, send_frame) unless allowAdmin is set', async () => {
     const withoutAdmin = await exposedTools({});
     expect(withoutAdmin).not.toContain('set_name');
     expect(withoutAdmin).not.toContain('set_timer');
+    expect(withoutAdmin).not.toContain('send_frame');
 
     const withAdmin = await exposedTools({ TWINKLY_ALLOW_ADMIN: 'true' });
     expect(withAdmin).toContain('set_name');
     expect(withAdmin).toContain('set_timer');
+    expect(withAdmin).toContain('send_frame');
   });
 
   it('keeps admin tools hidden in read-only mode even when allowAdmin is set', async () => {
     const tools = await exposedTools({ TWINKLY_ALLOW_ADMIN: 'true', TWINKLY_READONLY: 'true' });
     expect(tools).not.toContain('set_name');
     expect(tools).not.toContain('set_timer');
+    expect(tools).not.toContain('send_frame');
   });
 
   it('respects the group allow-list for admin (allowAdmin alone is not enough)', async () => {
