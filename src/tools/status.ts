@@ -15,11 +15,12 @@ import {
   stateShape,
   summaryShape,
 } from '../twinkly/format.js';
-import { deviceArg, guard, jsonResult, optional } from './shared.js';
+import { deviceArg, groupEnabled, guard, jsonResult, optional } from './shared.js';
 
 /** Register the read-only status tools on the server. */
 export function registerStatusTools(ctx: ServerContext): void {
-  const { server, deviceManager, logger } = ctx;
+  const { server, deviceManager, logger, config } = ctx;
+  if (!groupEnabled(config, 'status')) return;
 
   server.registerTool(
     'get_device_details',

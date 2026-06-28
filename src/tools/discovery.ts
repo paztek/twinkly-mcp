@@ -9,7 +9,7 @@
 import { z } from 'zod';
 import type { DeviceSource } from '../twinkly/device-manager.js';
 import type { ServerContext } from '../server.js';
-import { guard, jsonResult } from './shared.js';
+import { groupEnabled, guard, jsonResult } from './shared.js';
 
 const DEVICE_SOURCES = ['config', 'discovered'] as const satisfies readonly DeviceSource[];
 
@@ -23,7 +23,8 @@ const deviceInfoShape = {
 
 /** Register the discovery/inventory tools on the server. */
 export function registerDiscoveryTools(ctx: ServerContext): void {
-  const { server, deviceManager, logger } = ctx;
+  const { server, deviceManager, logger, config } = ctx;
+  if (!groupEnabled(config, 'discovery')) return;
 
   server.registerTool(
     'list_devices',

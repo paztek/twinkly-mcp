@@ -10,14 +10,16 @@ import { z } from 'zod';
 import { LEDOperationMode } from '@twinklyjs/twinkly';
 import type { ServerContext } from '../server.js';
 import { assertOk } from '../twinkly/format.js';
-import { deviceArg, guard, textResult } from './shared.js';
+import { deviceArg, groupEnabled, guard, textResult, writesEnabled } from './shared.js';
 
 /** The operation modes a client may request, mirroring `LEDOperationMode`. */
 const MODES = ['off', 'color', 'demo', 'movie', 'rt', 'effect', 'playlist'] as const;
 
 /** Register the power / mode tools on the server. */
 export function registerPowerTools(ctx: ServerContext): void {
-  const { server, deviceManager, logger } = ctx;
+  const { server, deviceManager, logger, config } = ctx;
+  // Every tool here mutates the device, so the whole group is dropped read-only.
+  if (!groupEnabled(config, 'power') || !writesEnabled(config)) return;
 
   server.registerTool(
     'set_power',

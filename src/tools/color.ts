@@ -11,7 +11,7 @@ import { LEDOperationMode } from '@twinklyjs/twinkly';
 import type { SetLEDColorRequest } from '@twinklyjs/twinkly';
 import type { ServerContext } from '../server.js';
 import { assertOk } from '../twinkly/format.js';
-import { deviceArg, guard, invalidInput, textResult } from './shared.js';
+import { deviceArg, groupEnabled, guard, invalidInput, textResult, writesEnabled } from './shared.js';
 
 const rgbSchema = z
   .object({
@@ -31,7 +31,9 @@ const hsvSchema = z
 
 /** Register the color / brightness / saturation tools on the server. */
 export function registerColorTools(ctx: ServerContext): void {
-  const { server, deviceManager, logger } = ctx;
+  const { server, deviceManager, logger, config } = ctx;
+  // Every tool here mutates the device, so the whole group is dropped read-only.
+  if (!groupEnabled(config, 'color') || !writesEnabled(config)) return;
 
   server.registerTool(
     'set_color',

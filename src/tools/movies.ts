@@ -10,11 +10,20 @@ import { z } from 'zod';
 import { LEDOperationMode } from '@twinklyjs/twinkly';
 import type { ServerContext } from '../server.js';
 import { assertOk, formatMovies, moviesShape } from '../twinkly/format.js';
-import { deviceArg, guard, jsonResult, optional, textResult } from './shared.js';
+import {
+  deviceArg,
+  groupEnabled,
+  guard,
+  jsonResult,
+  optional,
+  textResult,
+  writesEnabled,
+} from './shared.js';
 
 /** Register the movie tools on the server. */
 export function registerMoviesTools(ctx: ServerContext): void {
-  const { server, deviceManager, logger } = ctx;
+  const { server, deviceManager, logger, config } = ctx;
+  if (!groupEnabled(config, 'movies')) return;
 
   server.registerTool(
     'list_movies',
@@ -40,6 +49,8 @@ export function registerMoviesTools(ctx: ServerContext): void {
         return jsonResult(formatMovies(name, movies, current));
       }),
   );
+
+  if (!writesEnabled(config)) return;
 
   server.registerTool(
     'set_movie',

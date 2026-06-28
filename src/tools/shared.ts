@@ -10,6 +10,27 @@ import { z } from 'zod';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { TwinklyError, toTwinklyError } from '../errors.js';
 import type { Logger } from '../logger.js';
+import type { ToolGroup, TwinklyMcpConfig } from '../config.js';
+
+/**
+ * Whether a tool group is exposed at all. Honors the `tools` allow-list (when
+ * set, only listed groups are exposed) and the admin gate (the `admin` group is
+ * hidden unless `allowAdmin` is on). Read-only filtering is separate — see
+ * {@link writesEnabled} — because some groups mix read and write tools.
+ */
+export function groupEnabled(config: TwinklyMcpConfig, group: ToolGroup): boolean {
+  if (config.tools && !config.tools.includes(group)) return false;
+  if (group === 'admin' && !config.allowAdmin) return false;
+  return true;
+}
+
+/**
+ * Whether device-mutating (write) tools are exposed. In read-only mode they are
+ * dropped, leaving the inspection tools (and the harmless discovery scan) intact.
+ */
+export function writesEnabled(config: TwinklyMcpConfig): boolean {
+  return !config.readonly;
+}
 
 /** The optional `device` argument every device-targeting tool accepts. */
 export const deviceArg = {

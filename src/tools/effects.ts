@@ -9,11 +9,20 @@ import { z } from 'zod';
 import { LEDOperationMode } from '@twinklyjs/twinkly';
 import type { ServerContext } from '../server.js';
 import { assertOk, effectsShape, formatEffects } from '../twinkly/format.js';
-import { deviceArg, guard, jsonResult, optional, textResult } from './shared.js';
+import {
+  deviceArg,
+  groupEnabled,
+  guard,
+  jsonResult,
+  optional,
+  textResult,
+  writesEnabled,
+} from './shared.js';
 
 /** Register the effects tools on the server. */
 export function registerEffectsTools(ctx: ServerContext): void {
-  const { server, deviceManager, logger } = ctx;
+  const { server, deviceManager, logger, config } = ctx;
+  if (!groupEnabled(config, 'effects')) return;
 
   server.registerTool(
     'list_effects',
@@ -39,6 +48,8 @@ export function registerEffectsTools(ctx: ServerContext): void {
         return jsonResult(formatEffects(name, effects, current));
       }),
   );
+
+  if (!writesEnabled(config)) return;
 
   server.registerTool(
     'set_effect',

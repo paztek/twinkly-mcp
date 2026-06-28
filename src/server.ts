@@ -37,8 +37,15 @@ export function createServer(options: CreateServerOptions): McpServer {
     {
       capabilities: { tools: {} },
       instructions:
-        'Control Twinkly smart lights. Call list_devices first to see the available ' +
-        'device names, then pass a name as the `device` argument on other tools.',
+        'Control Twinkly smart lights.\n' +
+        '- Start with list_devices to see device names; pass one as the `device` argument on any tool ' +
+        '(omit it to use the default device). Use discover_devices if a device is missing.\n' +
+        '- Use get_state to read the current mode, brightness, saturation, and color before changing things.\n' +
+        '- set_power toggles on/off; set_color also switches to color mode so the color shows immediately; ' +
+        'set_effect / set_movie select and start a predefined effect or saved movie.\n' +
+        '- Some tools may be absent depending on server configuration: read-only mode hides every ' +
+        'state-changing tool, a tool allow-list can hide whole groups, and admin tools (set_name, set_timer) ' +
+        'appear only when explicitly enabled.',
     },
   );
 
