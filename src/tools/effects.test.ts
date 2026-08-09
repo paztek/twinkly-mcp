@@ -17,6 +17,31 @@ describe('list_effects tool', () => {
       count: 3,
       effectIds: ['a', 'b', 'c'],
       currentEffectId: 1,
+      currentEffectUniqueId: 'b',
+    });
+    await close();
+  });
+
+  // Firmware family T (e.g. TWQ064STW) answers /led/effects/current with
+  // `preset_id` + `unique_id` and no `effect_id` at all.
+  it('handles firmware that reports preset_id instead of effect_id', async () => {
+    const client: FakeClient = {
+      getLEDEffects: async () =>
+        ({ code: 1000, effects_number: 1, unique_ids: ['00000000-0000-0000-0000-000000000010'] }) as never,
+      getCurrentLEDEffect: async () =>
+        ({ code: 1000, preset_id: 0, unique_id: '00000000-0000-0000-0000-000000000010' }) as never,
+    };
+    const { client: mcp, close } = await connectHarness({ client });
+
+    const result = await mcp.callTool({ name: 'list_effects', arguments: {} });
+
+    expect(result.isError).toBeFalsy();
+    expect(result.structuredContent).toEqual({
+      device: 'default',
+      count: 1,
+      effectIds: ['00000000-0000-0000-0000-000000000010'],
+      currentEffectId: 0,
+      currentEffectUniqueId: '00000000-0000-0000-0000-000000000010',
     });
     await close();
   });

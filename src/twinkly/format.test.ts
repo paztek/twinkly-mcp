@@ -138,13 +138,54 @@ describe('formatEffects', () => {
         { code: 1000, effects_number: 2, unique_ids: ['a', 'b'] },
         { code: 1000, unique_id: 'a', effect_id: 1 },
       ),
-    ).toEqual({ device: 'tree', count: 2, effectIds: ['a', 'b'], currentEffectId: 1 });
+    ).toEqual({
+      device: 'tree',
+      count: 2,
+      effectIds: ['a', 'b'],
+      currentEffectId: 1,
+      currentEffectUniqueId: 'a',
+    });
+  });
+
+  it('falls back to preset_id when the firmware omits effect_id', () => {
+    expect(
+      formatEffects(
+        'tree',
+        { code: 1000, effects_number: 1, unique_ids: ['a'] },
+        { code: 1000, unique_id: 'a', preset_id: 3 },
+      ),
+    ).toEqual({
+      device: 'tree',
+      count: 1,
+      effectIds: ['a'],
+      currentEffectId: 3,
+      currentEffectUniqueId: 'a',
+    });
   });
 
   it('tolerates a missing current effect and missing unique_ids', () => {
+    expect(formatEffects('tree', { code: 1000, effects_number: 0 } as never, null)).toEqual({
+      device: 'tree',
+      count: 0,
+      effectIds: [],
+      currentEffectId: null,
+      currentEffectUniqueId: null,
+    });
+  });
+
+  it('reports a null id when the device identifies the effect only by uuid', () => {
     expect(
-      formatEffects('tree', { code: 1000, effects_number: 0 } as never, null),
-    ).toEqual({ device: 'tree', count: 0, effectIds: [], currentEffectId: null });
+      formatEffects('tree', { code: 1000, effects_number: 1, unique_ids: ['a'] }, {
+        code: 1000,
+        unique_id: 'a',
+      } as never),
+    ).toEqual({
+      device: 'tree',
+      count: 1,
+      effectIds: ['a'],
+      currentEffectId: null,
+      currentEffectUniqueId: 'a',
+    });
   });
 });
 

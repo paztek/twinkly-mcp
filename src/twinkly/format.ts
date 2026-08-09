@@ -200,20 +200,31 @@ export const effectsShape = {
   count: z.number(),
   effectIds: z.array(z.string()),
   currentEffectId: z.number().nullable(),
+  currentEffectUniqueId: z.string().nullable(),
 } as const;
 
 export type Effects = z.infer<z.ZodObject<typeof effectsShape>>;
 
+/**
+ * How the device names the effect it is currently playing is firmware-
+ * dependent: older firmware returns a numeric `effect_id`, firmware family T
+ * (e.g. TWQ064STW) returns `preset_id` plus the effect's `unique_id`. The
+ * library types only declare `effect_id`, so widen every field to optional and
+ * take whichever the device actually sent.
+ */
+type CurrentEffect = Partial<GetCurrentLEDEffectResponse> & { preset_id?: number };
+
 export function formatEffects(
   device: string,
   raw: GetLEDEffectsResponse,
-  current: GetCurrentLEDEffectResponse | null,
+  current: CurrentEffect | null,
 ): Effects {
   return {
     device,
     count: raw.effects_number,
     effectIds: raw.unique_ids ?? [],
-    currentEffectId: current ? current.effect_id : null,
+    currentEffectId: current?.effect_id ?? current?.preset_id ?? null,
+    currentEffectUniqueId: current?.unique_id ?? null,
   };
 }
 

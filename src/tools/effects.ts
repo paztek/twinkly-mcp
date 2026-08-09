@@ -29,8 +29,9 @@ export function registerEffectsTools(ctx: ServerContext): void {
     {
       title: 'List effects',
       description:
-        'List the predefined effects available on a Twinkly device (count + ids) and which effect is ' +
-        'currently selected. Use set_effect with an effect id to play one.',
+        'List the predefined effects available on a Twinkly device (count + unique ids) and which effect ' +
+        'is currently selected. Some firmware cannot report a numeric id for the current effect, in which ' +
+        'case only currentEffectUniqueId is set. Use set_effect with an effect id to play one.',
       inputSchema: deviceArg,
       outputSchema: effectsShape,
       annotations: { readOnlyHint: true, openWorldHint: false },
