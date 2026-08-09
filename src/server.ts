@@ -14,7 +14,7 @@ import type { Logger } from './logger.js';
 import { registerAllTools } from './tools/index.js';
 
 export const SERVER_NAME = 'twinkly-mcp';
-export const SERVER_VERSION = '0.0.1';
+export const SERVER_VERSION = '0.1.0';
 
 /** Shared dependencies handed to every tool registrar. */
 export interface ServerContext {

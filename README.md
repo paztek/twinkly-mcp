@@ -23,13 +23,19 @@ Ask your assistant things like:
 - One or more Twinkly devices on the same local network
 - An MCP client (e.g. Claude Desktop or Claude Code)
 
-## Installation
+## Quick start
+
+With [Claude Code](https://claude.com/claude-code), one command:
 
 ```bash
-npx twinkly-mcp
+claude mcp add twinkly --env TWINKLY_IP=192.168.1.50 -- npx -y twinkly-mcp
 ```
 
-(Or clone this repo and run `npm install && npm run build`, then `node dist/index.js`.)
+Replace the IP with your device's, or drop `--env` entirely and use `--env TWINKLY_DISCOVERY=true` to let the server find your lights on the network.
+
+For other clients, see [Connecting an MCP client](#connecting-an-mcp-client) below. Nothing to clone or build — `npx` fetches the package on first run.
+
+To hack on the server itself, see [Development](#development).
 
 ## Configuration
 
@@ -96,16 +102,16 @@ The riskier device operations the underlying library can do (firmware, WiFi/netw
 
 ## Connecting an MCP client
 
-### Claude Desktop / Claude Code (stdio)
+### Claude Desktop, Cursor, and other stdio clients
 
-Add the server to your MCP client configuration:
+Add the server to your client's MCP configuration — `claude_desktop_config.json` for Claude Desktop, `.mcp.json` in a project for Claude Code, `.cursor/mcp.json` for Cursor:
 
 ```json
 {
   "mcpServers": {
     "twinkly": {
       "command": "npx",
-      "args": ["twinkly-mcp"],
+      "args": ["-y", "twinkly-mcp"],
       "env": {
         "TWINKLY_IP": "192.168.1.50"
       }
@@ -114,14 +120,16 @@ Add the server to your MCP client configuration:
 }
 ```
 
-Restart the client, and the Twinkly tools will be available to the assistant.
+Restart the client, and the Twinkly tools will be available to the assistant. Keep the `-y` — without it `npx` may stall on an install prompt that the client can't answer.
+
+Any variable from [Configuration](#configuration) can go in that `env` block: `TWINKLY_DISCOVERY` instead of a fixed IP, `TWINKLY_READONLY` to expose only the read tools, and so on.
 
 ### Streamable HTTP
 
 Run the server with the HTTP transport:
 
 ```bash
-TWINKLY_IP=192.168.1.50 TWINKLY_TRANSPORT=http TWINKLY_PORT=3000 npx twinkly-mcp
+TWINKLY_IP=192.168.1.50 TWINKLY_TRANSPORT=http TWINKLY_PORT=3000 npx -y twinkly-mcp
 ```
 
 It serves the MCP endpoint at `http://127.0.0.1:3000/mcp`. Point an HTTP-capable MCP client at that URL.
@@ -137,6 +145,7 @@ The server translates natural-language requests into MCP tool calls, which it ma
 ## Development
 
 ```bash
+git clone https://github.com/paztek/twinkly-mcp.git && cd twinkly-mcp
 npm install
 npm run dev          # run in watch mode (tsx)
 npm run build        # compile to dist/
@@ -151,4 +160,4 @@ See [CLAUDE.md](./CLAUDE.md) for architecture, the full configuration reference,
 
 ## License
 
-ISC
+[ISC](./LICENSE)

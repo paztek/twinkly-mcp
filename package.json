@@ -1,9 +1,30 @@
 {
   "name": "twinkly-mcp",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A MCP Server to give control of your Twinkly lights to your AI Agents",
   "license": "ISC",
   "author": "Matthieu Balmes <matthieu.balmes@gmail.com>",
+  "homepage": "https://github.com/paztek/twinkly-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paztek/twinkly-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/paztek/twinkly-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "modelcontextprotocol",
+    "model-context-protocol",
+    "mcp-server",
+    "twinkly",
+    "smart-lights",
+    "christmas-lights",
+    "home-automation",
+    "iot",
+    "llm",
+    "ai-agent"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -16,10 +37,11 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage --passWithNoTests"
